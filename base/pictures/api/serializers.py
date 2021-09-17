@@ -22,6 +22,16 @@ class PictureSerializer(serializers.ModelSerializer):
         # read_only_fields = ('time_create', 'time_update')
 
 
+class PictureUpdateSerializer(PictureSerializer):
+    class Meta:
+        model = Picture
+        fields = ('id', 'name', 'description', 'src', 'owner', 'time_create', 'time_update', 'likes_count')
+        extra_kwargs = {
+            'src': {'required': False},
+            'name': {'required': False}
+        }
+
+
 class UniqueTV(UniqueTogetherValidator):
 
     def __init__(self, queryset, fields=None, message=None):

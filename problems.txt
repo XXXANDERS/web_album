@@ -1,0 +1,8 @@
+1. validators = [ UniqueTogetherValidator()]
+делает поле user обязательным, но user автоматически подставляется из perform_create(),
+ОН НЕ ДОЛЖЕН НИ КЕМ ОТПРАВЛЯТЬСЯ.
+
+2. поля like и in_favorites (bool) при отсутствии в put запросе воспринимаются сериализатором
+как значения False и заменяются на False.
+
+3. сделать filter_fields для likes_count (поле высчитывается с помощью аннотации в queryset)

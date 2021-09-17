@@ -3,10 +3,10 @@ from django.shortcuts import render
 from django_filters.rest_framework import DjangoFilterBackend, filters
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.viewsets import ModelViewSet
 
-from pictures.api.serializers import PictureSerializer, PictureRelationSerializer
+from pictures.api.serializers import PictureSerializer, PictureRelationSerializer, PictureUpdateSerializer
 from pictures.models import Picture, UserPictureRelation
 from pictures.permissions import IsOwnerOrReadOnly, RelationIsOwnerOrReadOnly
 
@@ -24,8 +24,8 @@ class PicturesViewSet(ModelViewSet):
     parser_classes = [MultiPartParser, JSONParser, FormParser]
     queryset = Picture.objects.all().annotate(
         likes_count=Count(Case(When(userpicturerelation__like=True, then=1))))
-    serializer_class = PictureSerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+    # serializer_class = PictureSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter, ]
     # filter_fields = ['likes_count']
     search_fields = ['name', 'description']
@@ -34,6 +34,13 @@ class PicturesViewSet(ModelViewSet):
     def perform_create(self, serializer):
         serializer.validated_data['owner'] = self.request.user
         serializer.save()
+
+    def get_serializer_class(self):
+        # print('ACTION = ', self.action)
+        if self.request.method in ['PUT', 'PATCH']:
+            return PictureUpdateSerializer
+        else:
+            return PictureSerializer
 
 
 class UserPictureRelationsViewSet(ModelViewSet):

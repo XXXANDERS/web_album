@@ -2,3 +2,6 @@
 /venv/
 /base/media/photos/
 /base/db.sqlite3
+/base/.coverage
+/base/htmlcov/
+/base/pictures/tests/img/
