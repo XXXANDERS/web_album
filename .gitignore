@@ -1,0 +1,4 @@
+/.idea/
+/venv/
+/base/media/photos/
+/base/db.sqlite3
