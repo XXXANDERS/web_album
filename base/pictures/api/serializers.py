@@ -57,7 +57,7 @@ class PictureRelationSerializer(serializers.ModelSerializer):
     #     return instance
 
     def update(self, instance, validated_data):
-        print(validated_data)
+        # print(validated_data)
         return super(PictureRelationSerializer, self).update(instance, validated_data)
 
     #

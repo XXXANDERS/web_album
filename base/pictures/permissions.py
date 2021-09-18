@@ -9,19 +9,17 @@ class IsOwnerOrReadOnly(BasePermission):
     def has_object_permission(self, request, view, obj):
         return bool(
             request.method in SAFE_METHODS or
-            request.user and
-            request.user.is_authenticated and
             obj.owner == request.user
         )
 
 
-class RelationIsOwnerOrReadOnly(BasePermission):
-    """
-    The request is authenticated as a user, or is a read-only request.
-    """
-
-    def has_object_permission(self, request, view, obj):
-        return bool(
-            request.method in SAFE_METHODS or
-            request.user and request.user.is_authenticated and obj.user == request.user
-        )
+# class RelationIsOwnerOrReadOnly(BasePermission):
+#     """
+#     The request is authenticated as a user, or is a read-only request.
+#     """
+#
+#     def has_object_permission(self, request, view, obj):
+#         return bool(
+#             request.method in SAFE_METHODS or
+#             obj.user == request.user
+#         )

@@ -5,7 +5,7 @@ from pictures.views import PicturesViewSet, UserPictureRelationsViewSet
 
 router = SimpleRouter()
 router.register(r'pictures', PicturesViewSet)
-router.register(r'user-picture-relation', UserPictureRelationsViewSet)
+router.register(r'user-picture-relations', UserPictureRelationsViewSet)
 
 urlpatterns = [
     # path('')
