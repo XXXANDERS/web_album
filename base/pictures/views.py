@@ -1,7 +1,7 @@
 from django.db.models import Count, Case, When
 from django.http import JsonResponse
 from django.shortcuts import render
-from django_filters.rest_framework import DjangoFilterBackend, filters
+from django_filters.rest_framework import DjangoFilterBackend, filters, FilterSet
 from rest_framework import status
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
@@ -13,24 +13,21 @@ from pictures.api.serializers import PictureSerializer, PictureRelationSerialize
 from pictures.models import Picture, UserPictureRelation
 from pictures.permissions import IsOwnerOrReadOnly
 
-# class ProductFilter(filters.FilterSet):
-#     min_price = filters.NumberFilter(field_name="price", lookup_expr='gte')
-#     max_price = filters.NumberFilter(field_name="price", lookup_expr='lte')
-#
-#     class Meta:
-#         model = UserPictureRelation
-#         fields = ['category', 'in_stock']
-from users.models import CustomUser
+
+class PictureFilter(FilterSet):
+    min_likes = filters.NumberFilter(field_name="likes_count", lookup_expr='gte')
+    max_likes = filters.NumberFilter(field_name="likes_count", lookup_expr='lte')
 
 
 class PicturesViewSet(ModelViewSet):
     parser_classes = [MultiPartParser, JSONParser, FormParser]
     queryset = Picture.objects.all().annotate(
         likes_count=Count(Case(When(userpicturerelation__like=True, then=1))))
-    # serializer_class = PictureSerializer
+
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter, ]
-    # filter_fields = ['likes_count']
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filter_class = PictureFilter
+    # filter_fields = []
     search_fields = ['name', 'description']
     ordering_fields = ['time_create', 'time_update']
 
@@ -45,13 +42,28 @@ class PicturesViewSet(ModelViewSet):
             return PictureSerializer
 
 
+def bool_validator(value, serializer, field: str):
+    if value in ['True', 'False', True, False]:
+        serializer.validated_data[field] = value
+        return True
+    return not value
+    # return Response({'detail': 'значение поля like должно быть типа bool'}, status=status.HTTP_400_BAD_REQUEST)
+
+
 class UserPictureRelationsViewSet(ModelViewSet):
     parser_classes = [MultiPartParser, JSONParser, FormParser]
-    queryset = UserPictureRelation.objects.all()
+
+    queryset = UserPictureRelation.objects.all().select_related('user')
     serializer_class = PictureRelationSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = []
     lookup_field = 'picture'
+    # http_method_names = ['get', 'head', 'put', 'patch']
+
+    def perform_update(self, serializer):
+        bool_validator(self.request.data.get('like'), serializer, 'like')
+        bool_validator(self.request.data.get('in_favorites'), serializer, 'in_favorites')
+        serializer.save()
 
     def perform_create(self, serializer):
         serializer.validated_data['user'] = self.request.user

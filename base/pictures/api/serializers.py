@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from rest_framework.fields import NullBooleanField
+from rest_framework.fields import NullBooleanField, BooleanField
 from rest_framework.validators import UniqueTogetherValidator
 
 from pictures.models import Picture, UserPictureRelation
@@ -9,7 +9,7 @@ from users.models import CustomUser
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ('id',)
+        fields = ('id', 'username')
 
 
 class PictureSerializer(serializers.ModelSerializer):
@@ -32,15 +32,6 @@ class PictureUpdateSerializer(PictureSerializer):
         }
 
 
-class UniqueTV(UniqueTogetherValidator):
-
-    def __init__(self, queryset, fields=None, message=None):
-        user = UserSerializer(default=CustomUser.objects.first(), required=False)
-        self.queryset = queryset
-        self.fields = [user, 'pictures']
-        self.message = message or self.message
-
-
 class PictureRelationSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -48,41 +39,25 @@ class PictureRelationSerializer(serializers.ModelSerializer):
             # self.fields.pop('picture', None)
             self.fields.get('picture').read_only = True
 
-    # def update(self, instance, validated_data):
-    #     print(validated_data['like'], type(validated_data['like']))
-    #     print(validated_data['in_favorites'], type(validated_data['in_favorites']))
-    #     # instance.email = validated_data.get('email', instance.email)
-    #     # instance.content = validated_data.get('content', instance.content)
-    #     # instance.created = validated_data.get('created', instance.created)
-    #     return instance
-
-    def update(self, instance, validated_data):
-        # print(validated_data)
-        return super(PictureRelationSerializer, self).update(instance, validated_data)
-
-    #
-    # like = NullBooleanField()
-    # in_favorites = NullBooleanField()
+    # like = BooleanField(required=False, read_only=True)
+    # in_favorites = BooleanField(required=False, read_only=True)
+    user = UserSerializer(read_only=True, default=serializers.CurrentUserDefault())
 
     class Meta:
         model = UserPictureRelation
-        # user = serializers.HiddenField(default=CustomUser.objects.first())
-        # user = serializers.HiddenField(default=serializers.CurrentUserDefault())
-        # user = serializers.CurrentUserDefault()
-        # user = UserSerializer(default=CustomUser.objects.first(), required=False)
-        # user = UserSerializer(read_only=True, default=serializers.CurrentUserDefault())
+
         fields = ('id', 'user', 'picture', 'like', 'in_favorites', 'rate')
-        read_only_fields = ('user',)
+        read_only_fields = ('user', 'like', 'in_favorites')
         extra_kwargs = {
             # 'user': {'required': False},
-            'like': {'required': False},
+            # 'like': {'required': False},
             # 'in_favorites': {'required': False},
             # 'rate': {'required': False},
         }
-        # validators = [
-        #     UniqueTogetherValidator(
-        #         queryset=UserPictureRelation.objects.all(),
-        #         fields=['user', 'picture'],
-        #         message='Данное отношение уже было добавлено. Вы можете только редактировать или удалить его',
-        #     )
-        # ]
+        validators = [
+            UniqueTogetherValidator(
+                queryset=UserPictureRelation.objects.all(),
+                fields=['user', 'picture'],
+                message='Данное отношение уже было добавлено. Вы можете только редактировать или удалить его',
+            )
+        ]

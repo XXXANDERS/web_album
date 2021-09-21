@@ -15,12 +15,12 @@ from users.models import CustomUser
 
 def set_absolute_urls(files: list):
     for file in files:
-        if file.get('src') != -1:
+        if file.get('src'):
             file['src'] = 'http://testserver' + file.get('src')
 
 
 def set_absolute_url(file: dict):
-    if file.get('src') != -1:
+    if file.get('src'):
         old_file_src = file['src']
         file['src'] = 'http://testserver' + file.get('src')
         return old_file_src

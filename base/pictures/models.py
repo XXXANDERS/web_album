@@ -28,8 +28,8 @@ class UserPictureRelation(models.Model):
 
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     picture = models.ForeignKey(Picture, on_delete=models.CASCADE)
-    like = models.BooleanField(default=False, null=True)
-    in_favorites = models.BooleanField(default=False, null=True)
+    like = models.BooleanField(default=False)
+    in_favorites = models.BooleanField(default=False)
     rate = models.PositiveIntegerField(choices=RATE_CHOICES, null=True)
 
     def __str__(self):
