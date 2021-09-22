@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'django_cleanup.apps.CleanupConfig',
     'rest_framework',
     'django_filters',
+    'rest_framework.authtoken',
+    'djoser',
 
     'pictures.apps.PicturesConfig',
     'users.apps.UsersConfig',
