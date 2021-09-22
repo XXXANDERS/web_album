@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.viewsets import ModelViewSet
-from pictures.api.serializers import PictureSerializer, PictureRelationSerializer, PictureUpdateSerializer
+from pictures.api.serializers import PictureSerializer, PictureRelationSerializer
 from pictures.models import Picture, UserPictureRelation
 from pictures.permissions import IsOwnerOrReadOnly
 
@@ -37,16 +37,17 @@ class PicturesViewSet(ModelViewSet):
     # filter_fields = []
     search_fields = ['name', 'description']
     ordering_fields = ['time_create', 'time_update']
+    serializer_class = PictureSerializer
 
     def perform_create(self, serializer):
         serializer.validated_data['owner'] = self.request.user
         serializer.save()
 
-    def get_serializer_class(self):
-        if self.request.method in ['PUT', 'PATCH']:
-            return PictureUpdateSerializer
-        else:
-            return PictureSerializer
+    # def get_serializer_class(self):
+    #     if self.request.method in ['PATCH']:
+    #         return PictureUpdateSerializer
+    #     else:
+    #         return PictureSerializer
 
 
 def bool_validator(value, serializer, field: str):
