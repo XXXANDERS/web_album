@@ -74,7 +74,7 @@ class PicturesApiTestCase(APITestCase):
         data = {
             'name': 'photo-1-new',
         }
-        response = self.client.put(url, data=data)
+        response = self.client.patch(url, data=data)
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertEqual('photo-1-new', response.data.get('name'))
 
@@ -83,7 +83,7 @@ class PicturesApiTestCase(APITestCase):
         data = {
             'src': file
         }
-        response = self.client.put(url, data=data)
+        response = self.client.patch(url, data=data)
         self.assertEqual(status.HTTP_200_OK, response.status_code)
 
         import datetime
@@ -129,7 +129,7 @@ class PicturesApiTestCase(APITestCase):
         data = {
             'name': 'photo-1-new',
         }
-        response = self.client.put(url, data=data)
+        response = self.client.patch(url, data=data)
         self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
 
     def test_delete_picture_not_authenticated(self):
@@ -137,7 +137,7 @@ class PicturesApiTestCase(APITestCase):
         data = {
             'name': 'photo-1-new',
         }
-        response = self.client.put(url, data=data)
+        response = self.client.patch(url, data=data)
         self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
 
     def test_update_picture_not_owner(self):
@@ -146,7 +146,7 @@ class PicturesApiTestCase(APITestCase):
         data = {
             'name': 'photo-1-new',
         }
-        response = self.client.put(url, data=data)
+        response = self.client.patch(url, data=data)
         self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
 
     def test_delete_picture_not_owner(self):

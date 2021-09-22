@@ -18,6 +18,7 @@ def api_root(request, format=None):
     return Response({
         'pictures': reverse('picture-list', request=request, format=format),
         'user-picture-relations': reverse('userpicturerelation-list', request=request, format=format),
+        # 'users': reverse('', request=request, format=format),
     })
 
 
