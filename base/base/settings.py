@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'django_cleanup.apps.CleanupConfig',
     'rest_framework',
+    'django_filters',
 
     'pictures.apps.PicturesConfig',
     'users.apps.UsersConfig',
@@ -136,9 +137,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+        'rest_framework_xml.renderers.XMLRenderer',
     ),
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',
+        # 'rest_framework_xml.parsers.XMLParser',
     )
 }
 

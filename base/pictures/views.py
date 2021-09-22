@@ -1,29 +1,37 @@
 from django.db.models import Count, Case, When
-from django.http import JsonResponse
-from django.shortcuts import render
 from django_filters.rest_framework import DjangoFilterBackend, filters, FilterSet
 from rest_framework import status
+from rest_framework.decorators import api_view
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 from rest_framework.viewsets import ModelViewSet
-
 from pictures.api.serializers import PictureSerializer, PictureRelationSerializer, PictureUpdateSerializer
 from pictures.models import Picture, UserPictureRelation
 from pictures.permissions import IsOwnerOrReadOnly
 
 
+@api_view(['GET'])
+def api_root(request, format=None):
+    return Response({
+        'pictures': reverse('picture-list', request=request, format=format),
+        'user-picture-relations': reverse('userpicturerelation-list', request=request, format=format),
+        'users': reverse('customuser-list', request=request, format=format),
+    })
+
+
 class PictureFilter(FilterSet):
-    min_likes = filters.NumberFilter(field_name="likes_count", lookup_expr='gte')
-    max_likes = filters.NumberFilter(field_name="likes_count", lookup_expr='lte')
+    min_likes = filters.NumberFilter(field_name="likes_count", lookup_expr='gte', label='min_likes')
+    max_likes = filters.NumberFilter(field_name="likes_count", lookup_expr='lte', label='max_likes')
 
 
 class PicturesViewSet(ModelViewSet):
     parser_classes = [MultiPartParser, JSONParser, FormParser]
     queryset = Picture.objects.all().annotate(
         likes_count=Count(Case(When(userpicturerelation__like=True, then=1))))
-
+    # renderer_classes = [JSONRenderer, XMLRenderer, ]
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filter_class = PictureFilter
@@ -58,6 +66,7 @@ class UserPictureRelationsViewSet(ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = []
     lookup_field = 'picture'
+
     # http_method_names = ['get', 'head', 'put', 'patch']
 
     def perform_update(self, serializer):

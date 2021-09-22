@@ -12,6 +12,13 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id', 'username')
 
 
+class UserRegistrationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        # fields = ('username', 'password', 'first_name', 'last_name', 'email',)
+        fields = "__all__"
+
+
 class PictureSerializer(serializers.ModelSerializer):
     likes_count = serializers.IntegerField(read_only=True)
 
